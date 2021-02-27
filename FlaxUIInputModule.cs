@@ -7,24 +7,24 @@ namespace FlaxGameUI
     public class FlaxUIInputModule : UIInputModule
     {
         [Tooltip("The input axis to use for horizontal")]
-        public string HorizontalInput;
+        public string HorizontalInput = "Horizontal";
         [Tooltip("The input axis to use for vertical")]
-        public string VerticalInput;
+        public string VerticalInput = "Vertical";
         [Tooltip("The input action to use for submit")]
-        public string SubmitInput;
+        public string SubmitInput = "Submit";
         [Tooltip("The point from which an axis is being threated as pushed enough")]
         public float InputZone = 0.5f;
 
-        public struct FlaxInput
+        struct FlaxInput
         {
             public float horizontal;
             public float vertical;
             public bool submit;
         }
-        public FlaxInput lastFrameState = new FlaxInput { horizontal = 0, vertical = 0, submit = false };
-        public FlaxInput actualState;
+        FlaxInput lastFrameState = new FlaxInput { horizontal = 0, vertical = 0, submit = false };
+        FlaxInput actualState;
 
-        public FlaxInput GatherInput()
+        FlaxInput GatherInput()
         {
             FlaxInput flInput = new FlaxInput();
             flInput.horizontal = Input.GetAxis(HorizontalInput);

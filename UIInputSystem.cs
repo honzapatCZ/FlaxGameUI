@@ -31,9 +31,9 @@ namespace FlaxGameUI
             }
         }
 
-        public void ChangeCurrentlySelcted(ISelectable newSelectable)
+        public void NavigateTo(ISelectable newSelectable)
         {
-            currentlySelected.OnDeSelect();
+            currentlySelected?.OnDeSelect();
             currentlySelected = newSelectable;
             currentlySelected.OnSelect();
         }
@@ -41,11 +41,17 @@ namespace FlaxGameUI
 
         public void Navigate(NavDir navDir)
         {
-            currentlySelected.OnNavigate(navDir);
+            if (currentlySelected == null)
+                return;
+            if (!currentlySelected.OnNavigate(navDir, this))
+            {
+                Debug.LogWarning("We should auto navigate from " + currentlySelected + " in direction of " + navDir);
+            }
+            
         }
         public void Submit()
         {
-            currentlySelected.OnSubmit();
+            currentlySelected?.OnSubmit();
         }
     }
 }
