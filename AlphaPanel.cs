@@ -11,6 +11,7 @@ namespace FlaxEngine.GUI
 
         public override void Draw()
         {
+            /*
             if (IgnoreStack)
             {
                 Render2d.PushTint(Color);
@@ -18,9 +19,10 @@ namespace FlaxEngine.GUI
             else
             {
                 Render2d.PushTint(Render2d.PeekTint() * Color);
-            }
+            }*/
             base.Draw();
-            Render2D.PopTint();
+            /*
+            Render2D.PopTint();*/
         }
     }
 }

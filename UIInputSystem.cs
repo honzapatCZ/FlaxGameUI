@@ -13,6 +13,7 @@ namespace FlaxGameUI
     {
         private ISelectable currentlySelected;
 
+        [Serialize]
         private UIControl defaultSelectedControl;
         public UIControl DefaultSelectedControl
         {
@@ -22,7 +23,7 @@ namespace FlaxGameUI
             }
             set
             {
-                if(!(value.Control is ISelectable))
+                if(value != null && !(value.Control is ISelectable))
                 {
                     Debug.LogError("Default Selected does not implement ISelectable");
                     return;

@@ -9,6 +9,7 @@ namespace FlaxGameUI
         public float MoveRepeatDelay = 0.5f;
         public float MoveRepeatRate = 0.1f;
 
+        [Serialize]
         private UIInputSystem cachedInputSystem;
         public UIInputSystem InputSystem
         {
