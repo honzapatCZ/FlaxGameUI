@@ -202,7 +202,6 @@ namespace FlaxGameUI
                 Debug.Log(tip);
                 if (tip != null && !serMeth.IsDynamic)
                 {
-                    var customEditor = CustomEditor.CurrentCustomEditor;
                     if (tip == typeof(bool))
                     {
                         Debug.Log("Je to bool");
