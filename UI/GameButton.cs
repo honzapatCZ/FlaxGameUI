@@ -16,7 +16,7 @@ namespace FlaxGameUI
         public ButtonVerke buttonType;
         bool isColorTint { get => buttonType == ButtonVerke.ColorTint; }
         bool isBrushSwap { get => buttonType == ButtonVerke.BrushSwap; }
-
+        
         [VisibleIf("isColorTint")]
         [EditorDisplay("Game Button"), ExpandGroups]
         public Color NormalColor;
@@ -41,12 +41,14 @@ namespace FlaxGameUI
         UIControl targetImage;
         Image targetImageControl => targetImage?.Control as Image;
         [EditorDisplay("Game Button"), ExpandGroups]
+        [NoSerialize]
         public UIControl TargetImage 
         {
             get => targetImage;
             set { if (value != null && !(value.Control is Image)) { Debug.LogError("Thats not an image"); return; } targetImage = value; }
         }
 
+        [EditorDisplay("Game Button"), ExpandGroups]
         public GameEvent<int> OnClick;
 
         public override void OnSelect()

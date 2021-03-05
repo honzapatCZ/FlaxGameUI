@@ -42,9 +42,7 @@ namespace FlaxGameUI
                 if(actorPicker.Value != editMeth.GetActor())
                 {
                     GameEventBase.SerializedMethod newMeth = new GameEventBase.SerializedMethod();
-                    Debug.Log(editMeth.Actor);
                     newMeth.Actor = (Actor)actorPicker.Value;
-                    Debug.Log(newMeth.Actor);
                     SetValue(newMeth);
                 }
             };
@@ -67,7 +65,6 @@ namespace FlaxGameUI
             GameEventBase.SerializedMethod serMeth = (GameEventBase.SerializedMethod)Values[0];
 
             Actor act = serMeth.GetActor();
-            Debug.Log(act);
             actorPicker.Value = act;
 
             if (popupContextMenu == null || oldPopUpMenuMethod.GetActor() != act)
@@ -102,17 +99,13 @@ namespace FlaxGameUI
                     popupContextMenu.AddButton("(Empty)");
                 }
             }            
-            Debug.Log("Pred show " + methodNameBtn);
             popupContextMenu.Show(methodNameBtn, methodNameBtn.PointFromScreen(Input.MouseScreenPosition));
-            Debug.Log("po show");
             oldPopUpMenuMethod = serMeth;
         }
         
-
         public void CreateContextMenuForType(ContextMenu ctx,Type type, Action<GameEventBase.SerializedMethod.SerInfos> cmcb)
         {
             List<MethodInfo> minfos = type.GetMethods().Where((m)=> !(m.IsSpecialName || m.GetParameters().Count() > 1)).ToList();
-            Debug.Log("Vytvářím metody");
             foreach (MethodInfo minfo in minfos)
             {
                 List<ParameterInfo> pinfo = minfo.GetParameters().ToList();
@@ -129,7 +122,6 @@ namespace FlaxGameUI
             List<PropertyInfo> pinfos = type.GetProperties().Where(prop=>prop.CanWrite && prop.GetSetMethod() != null).ToList();
             if(pinfos.Count > 0 && minfos.Count > 0)
                 ctx.AddSeparator();
-            Debug.Log("Vytvářím property");
             foreach (PropertyInfo pinfo in pinfos)
             {
                 ctx.AddButton(pinfo.PropertyType.Name + " " + pinfo.Name, (ctxbtn) => {
@@ -142,7 +134,6 @@ namespace FlaxGameUI
             List<FieldInfo> finfos = type.GetFields().ToList();
             if(finfos.Count > 0 && (pinfos.Count > 0 || minfos.Count > 0))
                 ctx.AddSeparator();
-            Debug.Log("Vytvářím fieldy");
             foreach (FieldInfo finfo in finfos)
             {
                 ctx.AddButton(finfo.FieldType.Name + " " + finfo.Name, (ctxbtn) => {
@@ -159,12 +150,12 @@ namespace FlaxGameUI
             base.Refresh();
 
             GameEventBase.SerializedMethod serMeth = (GameEventBase.SerializedMethod)Values[0];
-            //Debug.Log("Zjištujem jestli se " + oldSerMethod.GetActor() + " rovná "+ serMeth.GetActor() + " což nám vyšlo " + oldSerMethod.Equals(serMeth));
+
             if (serMeth.Equals(oldSerMethod))
                 return;
 
             Actor act = serMeth.GetActor();
-            Debug.Log("Refreshujeme s "+act);
+            //Debug.Log("Refreshujeme s "+act);
             actorPicker.Value = act;
 
             methodNameBtn.Text = serMeth.GetDisplayValueName();
@@ -175,10 +166,10 @@ namespace FlaxGameUI
             {
                 VariableControl?.Dispose();
                 dynamicCHeck?.Dispose();
-
+                /*
                 Debug.Log(serMeth.GetDisplayValueName() + " has allowedDynamicType: " + serMeth.allowedDynamicType);
                 Debug.Log("Náš tip je však " + tip);
-
+                */
                 if (tip != null && tip == serMeth.allowedDynamicType)
                 {
                     dynamicCHeck = new CheckBox(0, 0);
@@ -199,12 +190,11 @@ namespace FlaxGameUI
                     dynamicCHeck.Width = 98;
                 }
 
-                Debug.Log(tip);
+                //Debug.Log(tip);
                 if (tip != null && !serMeth.IsDynamic)
                 {
                     if (tip == typeof(bool))
                     {
-                        Debug.Log("Je to bool");
                         CheckBox varCon = new CheckBox(0, 0);
                         varCon.Checked = (bool)serMeth.SavedValue;
                         varCon.StateChanged += (cbox) =>
@@ -220,7 +210,6 @@ namespace FlaxGameUI
                     }
                     else if (tip == typeof(string))
                     {
-                        Debug.Log("Je to string");
                         TextBox varCon = new TextBox(false, 0, 0);
                         varCon.Text = (string)serMeth.SavedValue;
                         varCon.TextChanged += () =>
@@ -236,7 +225,6 @@ namespace FlaxGameUI
                     }
                     else if (tip == typeof(float))
                     {
-                        Debug.Log("Je to float");
                         FloatValueBox varCon = new FloatValueBox((float)serMeth.SavedValue);
                         varCon.TextChanged += () =>
                         {
@@ -251,7 +239,6 @@ namespace FlaxGameUI
                     }
                     else if (tip == typeof(int))
                     {
-                        Debug.Log("Je to int");
                         int integer = serMeth.SavedValue.GetType() == typeof(long) ? (int)(long)serMeth.SavedValue : (int)serMeth.SavedValue;
                         IntValueBox varCon = new IntValueBox(integer);
                         varCon.ValueChanged += () =>
@@ -267,9 +254,9 @@ namespace FlaxGameUI
                     }
                     else if (tip.IsSubclassOf(typeof(FlaxEngine.Object)))
                     {
-                        Debug.Log("Je to FlaxObjekt");
                         FlaxObjectRefPickerControl varCon = new FlaxObjectRefPickerControl();
                         varCon.Type = new ScriptType(tip);
+                        
                         varCon.Value = (FlaxEngine.Object)serMeth.SavedValue;
                         varCon.ValueChanged += () =>
                         {
@@ -281,10 +268,9 @@ namespace FlaxGameUI
                             }
                         };
                         VariableControl = varCon;
-                    }
+                    }                    
                     else
                     {
-                        Debug.Log("Nemám nejmenší tušení co to je");
                         Label varCon = new Label();
                         varCon.Text = "Unkown type " + tip.Name + " to display";
                         VariableControl = varCon;
@@ -294,16 +280,6 @@ namespace FlaxGameUI
                     VariableControl.AnchorPreset = AnchorPresets.StretchAll;
                     VariableControl.Offsets = new Margin(101, 1, 1, 1);
                 }
-            }
-
-
-
-
-            Debug.Log("Jsme na konci");
-            if (serMeth.Equals((GameEventBase.SerializedMethod)Values[0]))
-            {
-                Debug.Log("něco se aktualizovalo, ukládáme");
-                SetValue(serMeth);
             }
 
             oldSerMethod = serMeth;
@@ -335,7 +311,7 @@ namespace FlaxGameUI
 
             // Elements
             _elementsCount = size;
-                        
+                                    
             for (int i = 0; i < size; i++)
             {
                 if (DynamicType != typeof(GameEvent.GameEventVoid))

@@ -122,8 +122,44 @@ namespace FlaxGameUI
                 }
                 return infos;
             }
+            [Serialize]
+            object savedValue;
+            [Serialize]
+            System.Guid savedValueIfObject;
+            [NoSerialize]
+            FlaxEngine.Object savedValueCache;
+            [NoSerialize]
+            public object SavedValue
+            {
+                get
+                {
+                    if (savedValueIfObject != null && savedValueIfObject != Guid.Empty)
+                    {
+                        if(savedValueCache == null)
+                        {
+                            savedValueCache = FlaxEngine.Object.TryFind<FlaxEngine.Object>(ref savedValueIfObject);
+                        }                            
+                        return savedValueCache;
+                    }
+                    else
+                    {
+                        return savedValue;
+                    }
+                }
+                set
+                {
+                    savedValue = null;
+                    savedValueIfObject = Guid.Empty;
 
-            public object SavedValue;
+                    if (value is FlaxEngine.Object){
+                        savedValueIfObject = ((FlaxEngine.Object)value).ID;
+                    }
+                    else
+                    {
+                        savedValue = value;
+                    }
+                }
+            }
             public bool IsDynamic;
 
             public string ValueName;
@@ -192,15 +228,30 @@ namespace FlaxGameUI
                 else
                     return false;
             }
+            public override int GetHashCode()
+            {
+                int hash = 17;
+                if(SavedValue != null)
+                    hash = hash * 23 + SavedValue.GetHashCode();
+                if(ValueName != null)
+                    hash = hash * 23 + ValueName.GetHashCode();
+                if(Actor != null)
+                    hash = hash * 23 + Actor.GetHashCode();
+                if(script != null)
+                    hash = hash * 23 + script.GetHashCode();
+                hash = hash * 23 + IsDynamic.GetHashCode();
+                return hash;
+            }
+            [NoSerialize]
             public Type allowedDynamicType;
             public void Invoke(object dynamicValue = null)
             {
                 object invoker = GetInvoker();
-                SerializedMethod.SerInfos info = GetSerInfos();
+                SerInfos info = GetSerInfos();
 
                 switch (info.GetValueType())
                 {
-                    case SerializedMethod.SerializedActorValueType.Method:
+                    case SerializedActorValueType.Method:
                         {
                             object[] parameters = new object[] { GetSavedValueOrDynamic(dynamicValue, info.GetParOrValueType()) };
                             if (parameters[0] == null || info.minfo.GetParameters().Count() == 0)
@@ -216,7 +267,7 @@ namespace FlaxGameUI
                             }
                             break;
                         }
-                    case SerializedMethod.SerializedActorValueType.Property:
+                    case SerializedActorValueType.Property:
                         {
                             try
                             {
@@ -229,7 +280,7 @@ namespace FlaxGameUI
                             }
                             break;
                         }
-                    case SerializedMethod.SerializedActorValueType.Field:
+                    case SerializedActorValueType.Field:
                         {
                             try
                             {
@@ -251,6 +302,9 @@ namespace FlaxGameUI
             }
         }
     }
+
+    public class SerMethList<T0> : List<GameEventBase.SerializedMethod> { }
+
     public class GameEvent : GameEventBase
     {
         List<GameAction> actions = new List<GameAction>();
@@ -278,11 +332,7 @@ namespace FlaxGameUI
             }
         }    
     }
-    public class SerMethList<T0> : List<GameEventBase.SerializedMethod>
-    {
-
-    }
-
+    
     public class GameEvent<T0> : GameEventBase
     {
         List<GameAction<T0>> actions = new List<GameAction<T0>>();
