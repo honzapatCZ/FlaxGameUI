@@ -15,45 +15,75 @@ namespace FlaxGameUI
             Up = 4,
             Down = 8
         }
-        [Serialize]
-        UIControl onNavigateUp;
-        [Serialize]
-        UIControl onNavigateDown;
-        [Serialize]
-        UIControl onNavigateLeft;
-        [Serialize]
-        UIControl onNavigateRight;
 
         public bool upAllowed => (GetAllowedDirs() & PossibleDirs.Up) != 0;
         public bool rightAllowed => (GetAllowedDirs() & PossibleDirs.Right) != 0;
         public bool leftAllowed => (GetAllowedDirs() & PossibleDirs.Left) != 0;
         public bool downAllowed => (GetAllowedDirs() & PossibleDirs.Down) != 0;
+
+        [Serialize]
+        UIControl onNavigateUp;
         [VisibleIf("upAllowed")]
-        [EditorDisplay("OnNavigate"), ExpandGroups]
+        [NoSerialize, EditorDisplay("OnNavigate"), ExpandGroups]
         public UIControl OnNavigateUp{
             get => onNavigateUp;
-            set{if (value != null && !(value.Control is ISelectable)) {Debug.LogError("That UIControl does not implement ISelectable");return;}onNavigateUp = value;}
+            set{
+                if (value != null && !(value.Control is ISelectable)) {
+                    Debug.LogError("That UIControl does not implement ISelectable");
+                    return;
+                }
+                Debug.Log("nastavujeme on nav up");
+                onNavigateUp = value;
+            }
         }
-        [VisibleIf("rightAllowed")]
-        [EditorDisplay("OnNavigate"), ExpandGroups]
+
+        [Serialize]
+        UIControl onNavigateDown;
+        [VisibleIf("downAllowed")]
+        [NoSerialize, EditorDisplay("OnNavigate"), ExpandGroups]
         public UIControl OnNavigateDown
         {
             get => onNavigateDown;
-            set { if (value != null && !(value.Control is ISelectable)) { Debug.LogError("That UIControl does not implement ISelectable"); return; } onNavigateDown = value; }
+            set {
+                if (value != null && !(value.Control is ISelectable)) { 
+                    Debug.LogError("That UIControl does not implement ISelectable"); 
+                    return;
+                }
+                Debug.Log("nastavujeme on nav down");
+                onNavigateDown = value;
+            }
         }
+
+        [Serialize]
+        UIControl onNavigateLeft;
         [VisibleIf("leftAllowed")]
-        [EditorDisplay("OnNavigate"), ExpandGroups]
+        [NoSerialize, EditorDisplay("OnNavigate"), ExpandGroups]
         public UIControl OnNavigateLeft
         {
             get => onNavigateLeft;
-            set { if (value != null && !(value.Control is ISelectable)) { Debug.LogError("That UIControl does not implement ISelectable"); return; } onNavigateLeft = value; }
+            set {
+                if (value != null && !(value.Control is ISelectable)) {
+                    Debug.LogError("That UIControl does not implement ISelectable"); 
+                    return; 
+                } 
+                onNavigateLeft = value;
+            }
         }
-        [VisibleIf("downAllowed")]
-        [EditorDisplay("OnNavigate"), ExpandGroups]
+
+        [Serialize]
+        UIControl onNavigateRight;
+        [VisibleIf("rightAllowed")]
+        [NoSerialize, EditorDisplay("OnNavigate"), ExpandGroups]
         public UIControl OnNavigateRight
         {
             get => onNavigateRight;
-            set { if (value != null && !(value.Control is ISelectable)) { Debug.LogError("That UIControl does not implement ISelectable"); return; } onNavigateRight = value; }
+            set { 
+                if (value != null && !(value.Control is ISelectable)) {
+                    Debug.LogError("That UIControl does not implement ISelectable"); 
+                    return; 
+                }
+                onNavigateRight = value;
+            }
         }
 
         public virtual PossibleDirs GetAllowedDirs()

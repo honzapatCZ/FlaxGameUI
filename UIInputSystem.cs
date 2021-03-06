@@ -11,16 +11,14 @@ namespace FlaxGameUI
     }
     public class UIInputSystem : Script
     {
-        private ISelectable currentlySelected;
+        ISelectable currentlySelected;
 
         [Serialize]
-        private UIControl defaultSelectedControl;
+        UIControl defaultSelectedControl;
+        [NoSerialize]
         public UIControl DefaultSelectedControl
         {
-            get
-            {
-                return defaultSelectedControl;
-            }
+            get => defaultSelectedControl;
             set
             {
                 if(value != null && !(value.Control is ISelectable))
@@ -31,6 +29,11 @@ namespace FlaxGameUI
                 defaultSelectedControl = value;
             }
         }
+        public override void OnStart()
+        {
+            base.OnStart();
+            NavigateTo(DefaultSelectedControl.Control as ISelectable);
+        }
 
         public void NavigateTo(ISelectable newSelectable)
         {
@@ -39,17 +42,17 @@ namespace FlaxGameUI
             currentlySelected.OnSelect();
         }
 
-
         public void Navigate(NavDir navDir)
         {
+            Debug.Log("Navigating in " + navDir);
             if (currentlySelected == null)
                 return;
             if (!currentlySelected.OnNavigate(navDir, this))
             {
                 Debug.LogWarning("We should auto navigate from " + currentlySelected + " in direction of " + navDir);
-            }
-            
+            }            
         }
+
         public void Submit()
         {
             currentlySelected?.OnSubmit();

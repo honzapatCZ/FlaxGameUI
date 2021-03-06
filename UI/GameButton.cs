@@ -17,31 +17,29 @@ namespace FlaxGameUI
         bool isColorTint { get => buttonType == ButtonVerke.ColorTint; }
         bool isBrushSwap { get => buttonType == ButtonVerke.BrushSwap; }
         
-        [VisibleIf("isColorTint")]
-        [EditorDisplay("Game Button"), ExpandGroups]
+        [VisibleIf("isColorTint"), EditorDisplay("Game Button"), ExpandGroups]
         public Color NormalColor;
-        [VisibleIf("isColorTint")]
-        [EditorDisplay("Game Button"), ExpandGroups]
+        [VisibleIf("isColorTint"), EditorDisplay("Game Button"), ExpandGroups]
         public Color HoverColor;
-        [VisibleIf("isColorTint")]
-        [EditorDisplay("Game Button"), ExpandGroups]
+        [VisibleIf("isColorTint"), EditorDisplay("Game Button"), ExpandGroups]
         public Color PressedColor;
+        [VisibleIf("isColorTint"), EditorDisplay("Game Button"), ExpandGroups]
+        public Color DisabledColor;
 
-        [VisibleIf("isBrushSwap")]
-        [EditorDisplay("Game Button"), ExpandGroups]
+        [VisibleIf("isBrushSwap"), EditorDisplay("Game Button"), ExpandGroups]
         public IBrush NormalBrush;
-        [VisibleIf("isBrushSwap")]
-        [EditorDisplay("Game Button"), ExpandGroups]
+        [VisibleIf("isBrushSwap"), EditorDisplay("Game Button"), ExpandGroups]
         public IBrush HoverBrush;
-        [VisibleIf("isBrushSwap")]
-        [EditorDisplay("Game Button"), ExpandGroups]
+        [VisibleIf("isBrushSwap"), EditorDisplay("Game Button"), ExpandGroups]
         public IBrush PressedBrush;
+        [VisibleIf("isBrushSwap"), EditorDisplay("Game Button"), ExpandGroups]
+        public IBrush DisabledBrush;
 
         [Serialize]
         UIControl targetImage;
         Image targetImageControl => targetImage?.Control as Image;
-        [EditorDisplay("Game Button"), ExpandGroups]
-        [NoSerialize]
+        
+        [NoSerialize, EditorDisplay("Game Button"), ExpandGroups]
         public UIControl TargetImage 
         {
             get => targetImage;
@@ -49,7 +47,26 @@ namespace FlaxGameUI
         }
 
         [EditorDisplay("Game Button"), ExpandGroups]
-        public GameEvent<int> OnClick;
+        public GameEvent OnClick;
+
+        public new bool Enabled
+        {
+            get => base.Enabled;
+            set
+            {
+                base.Enabled = value;
+                if (targetImageControl != null)
+                {
+                    if (isColorTint)
+                    {
+                        targetImageControl.Color = !value ? DisabledColor : NormalColor;
+                        targetImageControl.MouseOverColor = !value ? DisabledColor : NormalColor;
+                    }
+                    if (isBrushSwap)
+                        targetImageControl.Brush = !value ? DisabledBrush : NormalBrush;
+                }
+            }
+        }
 
         public override void OnSelect()
         {
@@ -58,7 +75,10 @@ namespace FlaxGameUI
             if(targetImageControl != null)
             {
                 if (isColorTint)
+                {
                     targetImageControl.Color = HoverColor;
+                    targetImageControl.MouseOverColor = HoverColor;
+                }                    
                 if (isBrushSwap)
                     targetImageControl.Brush = HoverBrush;
             }
@@ -69,23 +89,29 @@ namespace FlaxGameUI
 
             if (targetImageControl != null)
             {
-                if (targetImageControl != null && isColorTint)
+                if (isColorTint)
+                {
                     targetImageControl.Color = NormalColor;
-                if (targetImageControl != null && isBrushSwap)
+                    targetImageControl.MouseOverColor = NormalColor;
+                }                    
+                if (isBrushSwap)
                     targetImageControl.Brush = NormalBrush;
             }
         }
-        int numberofClick = 0;
+        /// <inheritdoc/>
         public override void OnSubmit()
         {
             base.OnSubmit();
-            numberofClick++;
-            OnClick.Invoke(numberofClick);
+
+            OnClick.Invoke();
 
             if (targetImageControl != null)
             {
                 if (isColorTint)
+                {
                     targetImageControl.Color = PressedColor;
+                    targetImageControl.MouseOverColor = PressedColor;
+                }                    
                 if (isBrushSwap)
                     targetImageControl.Brush = PressedBrush;
             }

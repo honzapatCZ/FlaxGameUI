@@ -11,18 +11,20 @@ namespace FlaxEngine.GUI
 
         public override void Draw()
         {
-            /*
+            Render2D.PeekTint(out Color oldColor);
             if (IgnoreStack)
             {
-                Render2d.PushTint(Color);
+                Color newColor = new Color(oldColor.R, oldColor.G, oldColor.B, Alpha);
+                Render2D.PushTint(ref newColor, false);
             }
             else
             {
-                Render2d.PushTint(Render2d.PeekTint() * Color);
-            }*/
+                Color newColor = new Color(oldColor.R, oldColor.G, oldColor.B, oldColor.A * Alpha);
+                Render2D.PushTint(ref newColor, false);
+            }
             base.Draw();
-            /*
-            Render2D.PopTint();*/
+            
+            Render2D.PopTint();
         }
     }
 }
