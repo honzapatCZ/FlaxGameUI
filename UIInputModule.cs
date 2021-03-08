@@ -7,10 +7,10 @@ namespace FlaxGameUI
     public class UIInputModule : Script
     {
         public float MoveRepeatDelay = 0.5f;
-        public float MoveRepeatRate = 0.1f;
+        public float MoveRepeatRate = 0.2f;
 
         [Serialize]
-        private UIInputSystem cachedInputSystem;
+        protected UIInputSystem cachedInputSystem;
         public UIInputSystem InputSystem
         {
             get

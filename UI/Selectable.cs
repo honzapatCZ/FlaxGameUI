@@ -7,6 +7,11 @@ namespace FlaxGameUI
 {
     public class Selectable : ContainerControl, ISelectable
     {
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+        }
+
         [Flags]
         public enum PossibleDirs
         {
@@ -22,7 +27,7 @@ namespace FlaxGameUI
         public bool downAllowed => (GetAllowedDirs() & PossibleDirs.Down) != 0;
 
         [Serialize]
-        UIControl onNavigateUp;
+        protected UIControl onNavigateUp;
         [VisibleIf("upAllowed")]
         [NoSerialize, EditorDisplay("OnNavigate"), ExpandGroups]
         public UIControl OnNavigateUp{
@@ -38,7 +43,7 @@ namespace FlaxGameUI
         }
 
         [Serialize]
-        UIControl onNavigateDown;
+        protected UIControl onNavigateDown;
         [VisibleIf("downAllowed")]
         [NoSerialize, EditorDisplay("OnNavigate"), ExpandGroups]
         public UIControl OnNavigateDown
@@ -55,7 +60,7 @@ namespace FlaxGameUI
         }
 
         [Serialize]
-        UIControl onNavigateLeft;
+        protected UIControl onNavigateLeft;
         [VisibleIf("leftAllowed")]
         [NoSerialize, EditorDisplay("OnNavigate"), ExpandGroups]
         public UIControl OnNavigateLeft
@@ -71,7 +76,7 @@ namespace FlaxGameUI
         }
 
         [Serialize]
-        UIControl onNavigateRight;
+        protected UIControl onNavigateRight;
         [VisibleIf("rightAllowed")]
         [NoSerialize, EditorDisplay("OnNavigate"), ExpandGroups]
         public UIControl OnNavigateRight

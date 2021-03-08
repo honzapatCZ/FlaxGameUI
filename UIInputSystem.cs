@@ -29,6 +29,9 @@ namespace FlaxGameUI
                 defaultSelectedControl = value;
             }
         }
+
+        public static Dictionary<RootControl, List<ISelectable>> selectablesByRoot;
+
         public override void OnStart()
         {
             base.OnStart();

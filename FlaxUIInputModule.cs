@@ -60,7 +60,6 @@ namespace FlaxGameUI
                     InputSystem.Navigate(actualState.horizontal > 0 ? NavDir.Right : NavDir.Left);
                     horizontalRateTime = 0;
                 }
-
                 horizontalHeldTime += Time.DeltaTime;
             }
             else
@@ -69,7 +68,7 @@ namespace FlaxGameUI
                 horizontalRateTime = 0;
             }
 
-            if (actualState.horizontal > InputZone || actualState.horizontal < -InputZone)
+            if (actualState.vertical > InputZone || actualState.vertical < -InputZone)
             {
                 if(verticalHeldTime == 0)
                 {
@@ -78,14 +77,13 @@ namespace FlaxGameUI
 
                 if (verticalHeldTime > MoveRepeatDelay)
                 {
-                    verticalHeldTime += Time.DeltaTime;
+                    verticalRateTime += Time.DeltaTime;
                 }
                 if (verticalRateTime > MoveRepeatRate)
                 {
                     InputSystem.Navigate(actualState.vertical > 0 ? NavDir.Up : NavDir.Down);
                     verticalRateTime = 0;
                 }
-
                 verticalHeldTime += Time.DeltaTime;
             }
             else
