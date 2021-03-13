@@ -30,12 +30,44 @@ namespace FlaxGameUI
             }
         }
 
-        public static Dictionary<RootControl, List<ISelectable>> selectablesByRoot;
+        [NoSerialize]
+        public static Dictionary<RootControl, List<ISelectable>> selectablesByRoot = new Dictionary<RootControl, List<ISelectable>>();
+        [NoSerialize]
+        public static Dictionary<RootControl, UIInputSystem> inputSystemsByRoot = new Dictionary<RootControl, UIInputSystem>();
+
+        public static UIInputSystem instance;
+
+        public static UIInputSystem GetInputSystemForRctrl(RootControl rctrl)
+        {
+            if (inputSystemsByRoot.ContainsKey(rctrl))
+                return inputSystemsByRoot[rctrl];
+            else
+                return instance;
+        }
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+
+            if (instance == null)
+                instance = this;
+
+            RootControl rctrl = (Actor as UICanvas).GUI;
+            if (rctrl != null)
+                inputSystemsByRoot.Add(rctrl, this);
+        }
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (instance == this)
+                instance = null;
+        }
 
         public override void OnStart()
         {
             base.OnStart();
-            NavigateTo(DefaultSelectedControl.Control as ISelectable);
+            if(DefaultSelectedControl != null)
+                NavigateTo(DefaultSelectedControl.Control as ISelectable);
         }
 
         public void NavigateTo(ISelectable newSelectable)
