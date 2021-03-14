@@ -37,7 +37,6 @@ namespace FlaxGameUI
                     Debug.LogError("That UIControl does not implement ISelectable");
                     return;
                 }
-                Debug.Log("nastavujeme on nav up");
                 onNavigateUp = value;
             }
         }
@@ -54,7 +53,6 @@ namespace FlaxGameUI
                     Debug.LogError("That UIControl does not implement ISelectable"); 
                     return;
                 }
-                Debug.Log("nastavujeme on nav down");
                 onNavigateDown = value;
             }
         }

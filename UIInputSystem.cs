@@ -79,7 +79,6 @@ namespace FlaxGameUI
 
         public void Navigate(NavDir navDir)
         {
-            Debug.Log("Navigating in " + navDir);
             if (currentlySelected == null)
                 return;
             if (!currentlySelected.OnNavigate(navDir, this))
