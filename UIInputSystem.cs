@@ -74,7 +74,7 @@ namespace FlaxGameUI
         {
             currentlySelected?.OnDeSelect();
             currentlySelected = newSelectable;
-            currentlySelected.OnSelect();
+            currentlySelected?.OnSelect();
         }
 
         public void Navigate(NavDir navDir)

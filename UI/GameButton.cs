@@ -10,7 +10,7 @@ namespace FlaxGameUI
         public enum ButtonVerke
         {
             BrushSwap,
-            ColorTint
+            ColorTint,
         }
         [EditorDisplay("Game Button"), ExpandGroups]
         public ButtonVerke buttonType;
@@ -36,14 +36,21 @@ namespace FlaxGameUI
         public IBrush DisabledBrush;
 
         [Serialize]
-        UIControl targetImage;
-        Image targetImageControl => targetImage?.Control as Image;
-        
+        UIControl tragetControl;
+        Image targetControlAsImage => tragetControl?.Control as Image;
+        Label targetControlAsLabel => tragetControl?.Control as Label;
+
         [NoSerialize, EditorDisplay("Game Button"), ExpandGroups]
-        public UIControl TargetImage 
+        public UIControl TargetControl 
         {
-            get => targetImage;
-            set { if (value != null && !(value.Control is Image)) { Debug.LogError("Thats not an image"); return; } targetImage = value; }
+            get => tragetControl;
+            set { 
+                if (value != null && !(value.Control is Image) && !(value.Control is Label)) {
+                    Debug.LogError("Thats not an image"); 
+                    return; 
+                }
+                tragetControl = value; 
+            }
         }
 
         [EditorDisplay("Game Button"), ExpandGroups]
@@ -55,15 +62,23 @@ namespace FlaxGameUI
             set
             {
                 base.Enabled = value;
-                if (targetImageControl != null)
+                if (TargetControl != null)
                 {
                     if (isColorTint)
                     {
-                        targetImageControl.Color = !value ? DisabledColor : NormalColor;
-                        targetImageControl.MouseOverColor = !value ? DisabledColor : NormalColor;
+                        if (TargetControl.Control is Label)
+                        {
+                            targetControlAsLabel.TextColor = !value ? DisabledColor : NormalColor;
+                            targetControlAsLabel.TextColorHighlighted = !value ? DisabledColor : NormalColor;
+                        }
+                        if (targetControlAsImage != null)
+                        {
+                            targetControlAsImage.Color = !value ? DisabledColor : NormalColor;
+                            targetControlAsImage.MouseOverColor = !value ? DisabledColor : NormalColor;
+                        }
                     }
                     if (isBrushSwap)
-                        targetImageControl.Brush = !value ? DisabledBrush : NormalBrush;
+                        targetControlAsImage.Brush = !value ? DisabledBrush : NormalBrush;
                 }
             }
         }
@@ -72,30 +87,46 @@ namespace FlaxGameUI
         {
             base.OnSelect();
 
-            if(targetImageControl != null)
+            if(TargetControl != null)
             {
                 if (isColorTint)
                 {
-                    targetImageControl.Color = HoverColor;
-                    targetImageControl.MouseOverColor = HoverColor;
+                    if (targetControlAsLabel != null)
+                    {
+                        targetControlAsLabel.TextColor = HoverColor;
+                        targetControlAsLabel.TextColorHighlighted = HoverColor;
+                    }                        
+                    if (targetControlAsImage != null)
+                    {
+                        targetControlAsImage.Color = HoverColor;
+                        targetControlAsImage.MouseOverColor = HoverColor;
+                    }
                 }                    
                 if (isBrushSwap)
-                    targetImageControl.Brush = HoverBrush;
+                    targetControlAsImage.Brush = HoverBrush;
             }
         }
         public override void OnDeSelect()
         {
             base.OnDeSelect();
 
-            if (targetImageControl != null)
+            if (TargetControl != null)
             {
                 if (isColorTint)
                 {
-                    targetImageControl.Color = NormalColor;
-                    targetImageControl.MouseOverColor = NormalColor;
+                    if (targetControlAsLabel != null)
+                    {
+                        targetControlAsLabel.TextColor = NormalColor;
+                        targetControlAsLabel.TextColorHighlighted = NormalColor;
+                    }
+                    if (targetControlAsImage != null)
+                    {
+                        targetControlAsImage.Color = NormalColor;
+                        targetControlAsImage.MouseOverColor = NormalColor;
+                    }
                 }                    
                 if (isBrushSwap)
-                    targetImageControl.Brush = NormalBrush;
+                    targetControlAsImage.Brush = NormalBrush;
             }
         }
         /// <inheritdoc/>
@@ -103,30 +134,38 @@ namespace FlaxGameUI
         {
             base.OnSubmit();
 
-            OnClick.Invoke();
+            OnClick?.Invoke();
 
-            if (targetImageControl != null)
+            if (TargetControl != null)
             {
                 if (isColorTint)
                 {
-                    targetImageControl.Color = PressedColor;
-                    targetImageControl.MouseOverColor = PressedColor;
+                    if(targetControlAsLabel != null)
+                    {
+                        targetControlAsLabel.TextColor = PressedColor;
+                        targetControlAsLabel.TextColorHighlighted = PressedColor;
+                    }
+                    if (targetControlAsImage != null)
+                    {
+                        targetControlAsImage.Color = PressedColor;
+                        targetControlAsImage.MouseOverColor = PressedColor;
+                    }
                 }                    
                 if (isBrushSwap)
-                    targetImageControl.Brush = PressedBrush;
+                    targetControlAsImage.Brush = PressedBrush;
             }
         }   
 
         /// <inheritdoc />
         public override void OnMouseLeave()
         {
-            OnDeSelect();
+            UIInputSystem.GetInputSystemForRctrl(Root).NavigateTo(null);
 
             base.OnMouseLeave();
         }
         public override void OnMouseEnter(Vector2 location)
         {
-            OnSelect();
+            UIInputSystem.GetInputSystemForRctrl(Root).NavigateTo(this);
 
             base.OnMouseEnter(location);
         }
@@ -135,6 +174,7 @@ namespace FlaxGameUI
         {
             if (button == MouseButton.Left)
             {
+                UIInputSystem.GetInputSystemForRctrl(Root).NavigateTo(this);
                 OnSubmit();
                 return true;
             }
