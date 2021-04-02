@@ -54,7 +54,7 @@ namespace FlaxGameUI
         }
 
         [EditorDisplay("Game Button"), ExpandGroups]
-        public GameEvent OnClick;
+        public GameEvent OnClick = new GameEvent();
 
         public new bool Enabled
         {
