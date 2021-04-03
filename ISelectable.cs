@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FlaxEngine;
+using FlaxEngine.GUI;
 
 namespace FlaxGameUI
 {
@@ -23,5 +24,20 @@ namespace FlaxGameUI
         /// </summary>
         /// <returns>Retruns whether you handled it or not, if not auto-navigation will take place, but you can also navigate using <see cref="UIInputSystem.NavigateTo(ISelectable)"/></returns>
         bool OnNavigate(NavDir navDir, UIInputSystem system);
+        /// <summary>
+        /// Whether or not this control should be in autoNav search
+        /// </summary>
+        /// <returns>Whether or not this control should be in autoNav search</returns>
+        bool EvaluateInAutoNav();
+        /// <summary>
+        /// Gets the root control
+        /// </summary>
+        /// <returns>Gets the root control</returns>
+        RootControl GetRootControl();
+        /// <summary>
+        /// Gets the position in global space
+        /// </summary>
+        /// <returns>Gets the position in global space</returns>
+        Vector2 GetPosition();
     }
 }

@@ -7,8 +7,20 @@ namespace FlaxGameUI
 {
     public class Selectable : ContainerControl, ISelectable
     {
+        bool inited = false;
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+            if (!inited)
+            {
+                inited = true;
+                //Debug.Log("Adding " + this + " for " + Root + " btw my parent is " + Parent);
+                UIInputSystem.AddSelectable( this);
+            }
+        }
         public override void OnDestroy()
         {
+            UIInputSystem.RemoveSelectable(this);
             base.OnDestroy();
         }
 
@@ -145,5 +157,20 @@ namespace FlaxGameUI
         }
 
         public virtual void OnSubmit(){}
+
+        public bool EvaluateInAutoNav()
+        {
+            return EnabledInHierarchy && VisibleInHierarchy && Root != null && Parent != null;
+        }
+
+        public RootControl GetRootControl()
+        {
+            return Root;
+        }
+
+        public Vector2 GetPosition()
+        {
+            return PointToScreen(Vector2.Zero);
+        }
     }
 }

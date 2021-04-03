@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FlaxEngine;
 using FlaxEngine.GUI;
+using System.Linq;
 
 namespace FlaxGameUI
 {
@@ -30,12 +31,10 @@ namespace FlaxGameUI
             }
         }
 
-        [NoSerialize]
-        public static Dictionary<RootControl, List<ISelectable>> selectablesByRoot = new Dictionary<RootControl, List<ISelectable>>();
-        [NoSerialize]
-        public static Dictionary<RootControl, UIInputSystem> inputSystemsByRoot = new Dictionary<RootControl, UIInputSystem>();
+        static Dictionary<RootControl, List<ISelectable>> selectablesByRoot = new Dictionary<RootControl, List<ISelectable>>();
+        static Dictionary<RootControl, UIInputSystem> inputSystemsByRoot = new Dictionary<RootControl, UIInputSystem>();
 
-        public static UIInputSystem instance;
+        static UIInputSystem instance;
 
         public static UIInputSystem GetInputSystemForRctrl(RootControl rctrl)
         {
@@ -43,6 +42,27 @@ namespace FlaxGameUI
                 return inputSystemsByRoot[rctrl];
             else
                 return instance;
+        }
+
+        public static List<ISelectable> GetSelListForRctrl(RootControl rctrl)
+        {
+            if (!selectablesByRoot.ContainsKey(rctrl))
+            {
+                selectablesByRoot.Add(rctrl, new List<ISelectable>());
+            }
+            return selectablesByRoot[rctrl];
+        }
+        public static void AddSelectable(ISelectable sel)
+        {
+            GetSelListForRctrl(sel.GetRootControl()).Add(sel);
+        }
+        public static void RemoveSelectable(ISelectable selec)
+        {
+            foreach (List<ISelectable> sels in selectablesByRoot.Values)
+            {
+                if(sels.Contains(selec))
+                    sels.Remove(selec);
+            }
         }
 
         public override void OnAwake()
@@ -83,8 +103,57 @@ namespace FlaxGameUI
                 return;
             if (!currentlySelected.OnNavigate(navDir, this))
             {
-                Debug.LogWarning("We should auto navigate from " + currentlySelected + " in direction of " + navDir);
+                ISelectable newSel = AutoNaviagate(currentlySelected, navDir);
+                Debug.LogWarning("We tried to auto navigate from " + currentlySelected + " in direction of " + navDir + " and found " + newSel);
+                if(newSel != null)
+                {
+                    NavigateTo(newSel);
+                }
             }            
+        }
+
+        public Vector2 GetUIVectorDirFromNavDir(NavDir navDir)
+        {
+            switch (navDir)
+            {
+                case NavDir.Down:
+                    return new Vector2(0, 1);//Swapped dirs because UI is upside down
+                case NavDir.Up:
+                    return new Vector2(0, -1);
+                case NavDir.Right:
+                    return new Vector2(1, 0);
+                case NavDir.Left:
+                    return new Vector2(-1, 0);
+                default:
+                    return Vector2.Zero;
+            }
+        }
+
+        public ISelectable AutoNaviagate(ISelectable from, NavDir navDir)
+        {
+            Vector2 directionOfInput = GetUIVectorDirFromNavDir(navDir);
+
+            float closetsDistance = float.PositiveInfinity;
+            ISelectable closestSelectable = null;
+            foreach(ISelectable potentialSelectable in GetSelListForRctrl(from.GetRootControl()))
+            {
+                if (potentialSelectable != this && potentialSelectable.EvaluateInAutoNav())
+                {
+                    Vector2 directionOfDifferences = (potentialSelectable.GetPosition() - from.GetPosition());
+                    directionOfDifferences.Normalize();
+                    float likelinessOfDirectionCohersion = Vector2.Dot(directionOfInput, directionOfDifferences);
+                    if (likelinessOfDirectionCohersion > 0f)
+                    {
+                        float distance = Vector2.Distance(potentialSelectable.GetPosition(), from.GetPosition());
+                        if (distance < closetsDistance)
+                        {
+                            closetsDistance = distance;
+                            closestSelectable = potentialSelectable;
+                        }
+                    }
+                }
+            }
+            return closestSelectable;
         }
 
         public void Submit()
