@@ -39,14 +39,16 @@ namespace FlaxGameUI
         UIControl tragetControl;
         Image targetControlAsImage => tragetControl?.Control as Image;
         Label targetControlAsLabel => tragetControl?.Control as Label;
+        Panel targetControlAsPanel => tragetControl?.Control as Panel;
 
         [NoSerialize, EditorDisplay("Game Button"), ExpandGroups]
         public UIControl TargetControl 
         {
             get => tragetControl;
             set { 
-                if (value != null && !(value.Control is Image) && !(value.Control is Label)) {
-                    Debug.LogError("Thats not an image"); 
+                if (value != null && !(value.Control is Image) && !(value.Control is Label) && !(value.Control is Panel))
+                {
+                    Debug.LogError("Thats not an Image nor Panel nor Label"); 
                     return; 
                 }
                 tragetControl = value; 
@@ -66,7 +68,7 @@ namespace FlaxGameUI
                 {
                     if (isColorTint)
                     {
-                        if (TargetControl.Control is Label)
+                        if (targetControlAsLabel != null)
                         {
                             targetControlAsLabel.TextColor = !value ? DisabledColor : NormalColor;
                             targetControlAsLabel.TextColorHighlighted = !value ? DisabledColor : NormalColor;
@@ -75,6 +77,10 @@ namespace FlaxGameUI
                         {
                             targetControlAsImage.Color = !value ? DisabledColor : NormalColor;
                             targetControlAsImage.MouseOverColor = !value ? DisabledColor : NormalColor;
+                        }
+                        if (targetControlAsPanel != null)
+                        {
+                            targetControlAsPanel.BackgroundColor = !value ? DisabledColor : NormalColor;
                         }
                     }
                     if (isBrushSwap)
@@ -101,6 +107,10 @@ namespace FlaxGameUI
                         targetControlAsImage.Color = HoverColor;
                         targetControlAsImage.MouseOverColor = HoverColor;
                     }
+                    if (targetControlAsPanel != null)
+                    {
+                        targetControlAsPanel.BackgroundColor = HoverColor;
+                    }
                 }                    
                 if (isBrushSwap)
                     targetControlAsImage.Brush = HoverBrush;
@@ -123,6 +133,10 @@ namespace FlaxGameUI
                     {
                         targetControlAsImage.Color = NormalColor;
                         targetControlAsImage.MouseOverColor = NormalColor;
+                    }
+                    if (targetControlAsPanel != null)
+                    {
+                        targetControlAsPanel.BackgroundColor = NormalColor;
                     }
                 }                    
                 if (isBrushSwap)
@@ -149,6 +163,10 @@ namespace FlaxGameUI
                     {
                         targetControlAsImage.Color = PressedColor;
                         targetControlAsImage.MouseOverColor = PressedColor;
+                    }
+                    if (targetControlAsPanel != null)
+                    {
+                        targetControlAsPanel.BackgroundColor = PressedColor;
                     }
                 }                    
                 if (isBrushSwap)
