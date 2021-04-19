@@ -17,6 +17,9 @@ using FlaxEditor.CustomEditors.GUI;
 
 namespace FlaxGameUI
 {
+    /// <summary>
+    /// Editor for SerializedEventValue, basically a MemberType
+    /// </summary>
     [CustomEditor(typeof(GameEventBase.SerializedMethod)), DefaultEditor]
     public class SerializedEventValueEditor : CustomEditor
     {
@@ -26,6 +29,7 @@ namespace FlaxGameUI
         FlaxObjectRefPickerControl actorPicker;
         Button methodNameBtn;
 
+        /// <inheritdoc/>
         public override void Initialize(LayoutElementsContainer layout)
         {
             layout.Space(2);
@@ -39,7 +43,7 @@ namespace FlaxGameUI
             actorPicker.Type = TypeUtils.GetType("FlaxEngine.Actor");
             actorPicker.ValueChanged += () => {
                 GameEventBase.SerializedMethod editMeth = (GameEventBase.SerializedMethod)Values[0];
-                if(actorPicker.Value != editMeth.GetActor())
+                if (actorPicker.Value != editMeth.GetActor())
                 {
                     GameEventBase.SerializedMethod newMeth = new GameEventBase.SerializedMethod();
                     newMeth.Actor = (Actor)actorPicker.Value;
@@ -53,13 +57,16 @@ namespace FlaxGameUI
             methodNameBtn.Parent = firstRow.ContainerControl;
             methodNameBtn.AnchorPreset = AnchorPresets.StretchAll;
             methodNameBtn.Offsets = new Margin(101, 1, 1, 1);
-            methodNameBtn.Clicked += ()=>ShowPopupMenu();
+            methodNameBtn.Clicked += () => ShowPopupMenu();
 
             secondRow = layout.Space(20);
         }
 
         GameEventBase.SerializedMethod oldPopUpMenuMethod;
         ContextMenu popupContextMenu;
+        /// <summary>
+        /// Shows the popupmenu with all available options
+        /// </summary>
         public void ShowPopupMenu()
         {
             GameEventBase.SerializedMethod serMeth = (GameEventBase.SerializedMethod)Values[0];
@@ -98,14 +105,20 @@ namespace FlaxGameUI
                 {
                     popupContextMenu.AddButton("(Empty)");
                 }
-            }            
+            }
             popupContextMenu.Show(methodNameBtn, methodNameBtn.PointFromScreen(Input.MouseScreenPosition));
             oldPopUpMenuMethod = serMeth;
         }
-        
-        public void CreateContextMenuForType(ContextMenu ctx,Type type, Action<GameEventBase.SerializedMethod.SerInfos> cmcb)
+
+        /// <summary>
+        /// Creates the SubContextMenus for Scripts
+        /// </summary>
+        /// <param name="ctx">The ContextMenu To Use</param>
+        /// <param name="type">The Script</param>
+        /// <param name="cmcb">The Action to perform when clicked(passwd back with SerInfos which holds the actual type etc.)</param>
+        public void CreateContextMenuForType(ContextMenu ctx, Type type, Action<GameEventBase.SerializedMethod.SerInfos> cmcb)
         {
-            List<MethodInfo> minfos = type.GetMethods().Where((m)=> !(m.IsSpecialName || m.GetParameters().Count() > 1)).ToList();
+            List<MethodInfo> minfos = type.GetMethods().Where((m) => !(m.IsSpecialName || m.GetParameters().Count() > 1)).ToList();
             foreach (MethodInfo minfo in minfos)
             {
                 List<ParameterInfo> pinfo = minfo.GetParameters().ToList();
@@ -118,9 +131,9 @@ namespace FlaxGameUI
                     cmcb(info);
                 });
             }
-            
-            List<PropertyInfo> pinfos = type.GetProperties().Where(prop=>prop.CanWrite && prop.GetSetMethod() != null).ToList();
-            if(pinfos.Count > 0 && minfos.Count > 0)
+
+            List<PropertyInfo> pinfos = type.GetProperties().Where(prop => prop.CanWrite && prop.GetSetMethod() != null).ToList();
+            if (pinfos.Count > 0 && minfos.Count > 0)
                 ctx.AddSeparator();
             foreach (PropertyInfo pinfo in pinfos)
             {
@@ -132,7 +145,7 @@ namespace FlaxGameUI
             }
 
             List<FieldInfo> finfos = type.GetFields().ToList();
-            if(finfos.Count > 0 && (pinfos.Count > 0 || minfos.Count > 0))
+            if (finfos.Count > 0 && (pinfos.Count > 0 || minfos.Count > 0))
                 ctx.AddSeparator();
             foreach (FieldInfo finfo in finfos)
             {
@@ -145,6 +158,7 @@ namespace FlaxGameUI
         }
 
         GameEventBase.SerializedMethod oldSerMethod;
+        /// <inheritdoc/>
         public override void Refresh()
         {
             base.Refresh();
@@ -162,32 +176,32 @@ namespace FlaxGameUI
 
             GameEventBase.SerializedMethod.SerInfos infos = serMeth.GetSerInfos();
             Type tip = infos.GetParOrValueType();
-            if(serMeth.IsDynamic != oldSerMethod.IsDynamic || tip != oldSerMethod.GetSerInfos().GetParOrValueType())
+            if (serMeth.IsDynamic != oldSerMethod.IsDynamic || tip != oldSerMethod.GetSerInfos().GetParOrValueType())
             {
                 VariableControl?.Dispose();
-                dynamicCHeck?.Dispose();
+                dynamicCheck?.Dispose();
                 /*
                 Debug.Log(serMeth.GetDisplayValueName() + " has allowedDynamicType: " + serMeth.allowedDynamicType);
                 Debug.Log("Náš tip je však " + tip);
                 */
                 if (tip != null && tip == serMeth.allowedDynamicType)
                 {
-                    dynamicCHeck = new CheckBox(0, 0);
-                    dynamicCHeck.Checked = (bool)serMeth.IsDynamic;
-                    dynamicCHeck.StateChanged += (cbox) =>
+                    dynamicCheck = new CheckBox(0, 0);
+                    dynamicCheck.Checked = (bool)serMeth.IsDynamic;
+                    dynamicCheck.StateChanged += (cbox) =>
                     {
                         GameEventBase.SerializedMethod editMeth = (GameEventBase.SerializedMethod)Values[0];
-                        if (editMeth.IsDynamic != dynamicCHeck.Checked)
+                        if (editMeth.IsDynamic != dynamicCheck.Checked)
                         {
-                            editMeth.IsDynamic = dynamicCHeck.Checked;
+                            editMeth.IsDynamic = dynamicCheck.Checked;
                             SetValue(editMeth);
                         }
                     };
 
-                    dynamicCHeck.Parent = secondRow.ContainerControl;
-                    dynamicCHeck.AnchorPreset = AnchorPresets.VerticalStretchLeft;
-                    dynamicCHeck.Offsets = new Margin(1, 0, 1, 1);
-                    dynamicCHeck.Width = 98;
+                    dynamicCheck.Parent = secondRow.ContainerControl;
+                    dynamicCheck.AnchorPreset = AnchorPresets.VerticalStretchLeft;
+                    dynamicCheck.Offsets = new Margin(1, 0, 1, 1);
+                    dynamicCheck.Width = 98;
                 }
 
                 //Debug.Log(tip);
@@ -256,7 +270,7 @@ namespace FlaxGameUI
                     {
                         FlaxObjectRefPickerControl varCon = new FlaxObjectRefPickerControl();
                         varCon.Type = new ScriptType(tip);
-                        
+
                         varCon.Value = (FlaxEngine.Object)serMeth.SavedValue;
                         varCon.ValueChanged += () =>
                         {
@@ -268,7 +282,7 @@ namespace FlaxGameUI
                             }
                         };
                         VariableControl = varCon;
-                    }                    
+                    }
                     else
                     {
                         Label varCon = new Label();
@@ -284,17 +298,30 @@ namespace FlaxGameUI
 
             oldSerMethod = serMeth;
         }
+        /// <summary>
+        /// Control which hold the variable control
+        /// </summary>
         public Control VariableControl;
-        public CheckBox dynamicCHeck;
+        /// <summary>
+        /// Whether or not this value is dynamic
+        /// </summary>
+        public CheckBox dynamicCheck;
     }
 
+    /// <summary>
+    /// Custom list so its inlines without any useless PropertyLabel etc...
+    /// </summary>
     [CustomEditor(typeof(SerMethList<>)), DefaultEditor]
     public class SerMethListEditor : CustomEditor
     {
+        /// <inheritdoc/>
         public override DisplayStyle Style => DisplayStyle.InlineIntoParent;
 
         private int _elementsCount;
 
+        /// <summary>
+        /// The Dynamic type
+        /// </summary>
         public Type DynamicType
         {
             get
@@ -303,15 +330,16 @@ namespace FlaxGameUI
             }
         }
 
+        /// <inheritdoc/>
         public override void Initialize(LayoutElementsContainer layout)
         {
             var size = Count;
-            if(DynamicType != typeof(GameEvent.GameEventVoid))
+            if (DynamicType != typeof(GameEvent.GameEventVoid))
                 layout.Label("(" + Values.Type.GetGenericArguments()[0].Name + ")");
 
             // Elements
             _elementsCount = size;
-                                    
+
             for (int i = 0; i < size; i++)
             {
                 if (DynamicType != typeof(GameEvent.GameEventVoid))
@@ -356,8 +384,10 @@ namespace FlaxGameUI
                 Resize(Count - 1);
             };
         }
+        /// <inheritdoc/>
         public int Count => (Values[0] as IList)?.Count ?? 0;
 
+        /// <inheritdoc/>
         protected void Resize(int newSize)
         {
             var list = Values[0] as IList;
@@ -398,6 +428,7 @@ namespace FlaxGameUI
                 SetValue(newValues);
             }
         }
+        /// <inheritdoc/>
         public ScriptType ElementType
         {
             get
@@ -449,6 +480,7 @@ namespace FlaxGameUI
 
             SetValue(newValues);
         }
+        /// <inheritdoc/>
         protected IList Allocate(int size)
         {
             var listType = Values.Type;
@@ -460,6 +492,7 @@ namespace FlaxGameUI
             }
             return list;
         }
+        /// <inheritdoc/>
         protected IList CloneValues()
         {
             var list = Values[0] as IList;
@@ -477,6 +510,7 @@ namespace FlaxGameUI
 
             return cloned;
         }
+        /// <inheritdoc/>
         public override void Refresh()
         {
             base.Refresh();

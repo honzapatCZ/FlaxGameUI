@@ -4,30 +4,91 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using FlaxEditor.Scripting;
 using FlaxEngine;
 
 namespace FlaxGameUI
 {
+    /// <summary>
+    /// Game Action Delegate
+    /// </summary>
     public delegate void GameAction();
+    /// <summary>
+    /// Generic Game Action Delegate
+    /// </summary>
+    /// <typeparam name="T0">The Target Type</typeparam>
+    /// <param name="value">Value to set for the target type</param>
     public delegate void GameAction<T0>(T0 value);
 
+    /// <summary>
+    /// Game Event, similiar to System.Action, but has GUI representation in the editor, while retaining the possibility to use with scripting
+    /// </summary>
     public class GameEventBase
     {
+        /// <summary>
+        /// Main Method, stores all the needed info for this Method/Poperty/Member
+        /// </summary>
         [Serializable]
         public struct SerializedMethod
         {
-            public enum SerializedActorType{
-                Actor, Script
+            /// <summary>
+            /// Whether this is Actor or Script
+            /// </summary>
+            public enum SerializedActorType
+            {
+                /// <summary>
+                /// Actor
+                /// </summary>
+                Actor,
+                /// <summary>
+                /// Script
+                /// </summary>
+                Script
             }
-            public enum SerializedActorValueType{
-                None, Method, Property, Field
+            /// <summary>
+            /// Whether this is Method, Poperty or Field
+            /// </summary>
+            public enum SerializedActorValueType
+            {
+                /// <summary>
+                /// Invalid
+                /// </summary>
+                None,
+                /// <summary>
+                /// Method
+                /// </summary>
+                Method,
+                /// <summary>
+                /// Property
+                /// </summary>
+                Property,
+                /// <summary>
+                /// Filed
+                /// </summary>
+                Field
             }
+            /// <summary>
+            /// Holds all posibilities MethodINfo, FIledInfo, even PropertyInfo
+            /// </summary>
             public struct SerInfos
             {
+                /// <summary>
+                /// MethodInfo if we are for Method
+                /// </summary>
                 public MethodInfo minfo;
+                /// <summary>
+                /// MethodInfo if we are for Method
+                /// </summary>
                 public FieldInfo finfo;
+                /// <summary>
+                /// MethodInfo if we are for Method
+                /// </summary>
                 public PropertyInfo pinfo;
 
+                /// <summary>
+                /// Gets the value type that we are
+                /// </summary>
+                /// <returns>The value type we are</returns>
                 public SerializedActorValueType GetValueType()
                 {
                     if (minfo != null)
@@ -39,6 +100,10 @@ namespace FlaxGameUI
                     else
                         return SerializedActorValueType.None;
                 }
+                /// <summary>
+                /// Gets the name
+                /// </summary>
+                /// <returns>The name</returns>
                 public string GetValueName()
                 {
                     switch (GetValueType())
@@ -53,6 +118,10 @@ namespace FlaxGameUI
                             return null;
                     }
                 }
+                /// <summary>
+                /// Gets the target type of this Member/Propery/Method(in case of Method its first attribute)
+                /// </summary>
+                /// <returns></returns>
                 public Type GetParOrValueType()
                 {
                     switch (GetValueType())
@@ -63,7 +132,7 @@ namespace FlaxGameUI
                                 if (pinfos == null || pinfos.Count == 0)
                                     return null;
                                 return pinfos[0].ParameterType;
-                            }                            
+                            }
                         case SerializedActorValueType.Field:
                             return finfo?.FieldType;
                         case SerializedActorValueType.Property:
@@ -73,11 +142,15 @@ namespace FlaxGameUI
                     }
                 }
             }
+            /// <summary>
+            /// Applies SerInfo to synchornize itself with it
+            /// </summary>
+            /// <param name="info"></param>
             public void ApplySerInfo(SerInfos info)
             {
                 ValueName = info.GetValueName();
                 valueType = info.GetValueType();
-                if(SavedValue?.GetType() != info.GetParOrValueType())
+                if (SavedValue?.GetType() != info.GetParOrValueType())
                 {
                     Type theType = info.GetParOrValueType();
                     if (theType == null || !theType.IsValueType)
@@ -85,11 +158,15 @@ namespace FlaxGameUI
                     else
                         SavedValue = Activator.CreateInstance(theType);
                 }
-                if(info.GetParOrValueType() != allowedDynamicType)
+                if (info.GetParOrValueType() != allowedDynamicType)
                 {
                     IsDynamic = false;
                 }
             }
+            /// <summary>
+            /// Gets the SerInfo for this Object
+            /// </summary>
+            /// <returns></returns>
             public SerInfos GetSerInfos()
             {
                 SerInfos infos = new SerInfos();
@@ -102,7 +179,7 @@ namespace FlaxGameUI
                 {
                     case SerializedActorValueType.Method:
                         {
-                            List< MethodInfo> methodInfos = finalType?.GetMethods().Where(mi=>mi.Name.Equals(valName)).ToList();
+                            List<MethodInfo> methodInfos = finalType?.GetMethods().Where(mi => mi.Name.Equals(valName)).ToList();
                             if (methodInfos.Count > 1)
                                 methodInfos = methodInfos.Where((mi) => mi.GetParameters().Count() < 2).ToList();
 
@@ -128,6 +205,9 @@ namespace FlaxGameUI
             System.Guid savedValueIfObject;
             [NoSerialize]
             FlaxEngine.Object savedValueCache;
+            /// <summary>
+            /// The saved value, int, string, whatever
+            /// </summary>
             [NoSerialize]
             public object SavedValue
             {
@@ -135,10 +215,10 @@ namespace FlaxGameUI
                 {
                     if (savedValueIfObject != null && savedValueIfObject != Guid.Empty)
                     {
-                        if(savedValueCache == null)
+                        if (savedValueCache == null)
                         {
                             savedValueCache = FlaxEngine.Object.TryFind<FlaxEngine.Object>(ref savedValueIfObject);
-                        }                            
+                        }
                         return savedValueCache;
                     }
                     else
@@ -151,7 +231,8 @@ namespace FlaxGameUI
                     savedValue = null;
                     savedValueIfObject = Guid.Empty;
 
-                    if (value is FlaxEngine.Object){
+                    if (value is FlaxEngine.Object)
+                    {
                         savedValueIfObject = ((FlaxEngine.Object)value).ID;
                     }
                     else
@@ -160,12 +241,30 @@ namespace FlaxGameUI
                     }
                 }
             }
+            /// <summary>
+            /// If the saved value is dynamic
+            /// </summary>
             public bool IsDynamic;
 
+            /// <summary>
+            /// The name of the value like MemberName/ProperyName/MethodName
+            /// </summary>
             public string ValueName;
 
+            /// <summary>
+            /// Our type
+            /// </summary>
             public SerializedActorType type;
+
+            /// <summary>
+            /// Our Value type
+            /// </summary>
             public SerializedActorValueType valueType;
+
+            /// <summary>
+            /// Makes the Values name fancy, like in case of Method we add the nice ()
+            /// </summary>
+            /// <returns></returns>
             public string GetDisplayValueName()
             {
                 switch (valueType)
@@ -174,11 +273,16 @@ namespace FlaxGameUI
                         return GetInvoker().GetType().Name + "." + ValueName + "()";
                     case SerializedActorValueType.Field:
                     case SerializedActorValueType.Property:
-                        return GetInvoker().GetType().Name  + "." + ValueName;
+                        return GetInvoker().GetType().Name + "." + ValueName;
                     default:
                         return "Not set";
                 }
             }
+
+            /// <summary>
+            /// We get the invoker, Actor in case of Actor, Script in case if a script
+            /// </summary>
+            /// <returns>The invoker</returns>
             public object GetInvoker()
             {
                 if (type == SerializedActorType.Actor)
@@ -189,9 +293,19 @@ namespace FlaxGameUI
                     return null;
             }
 
+            /// <summary>
+            /// Hold the target actor
+            /// </summary>
             public Actor Actor;
+            /// <summary>
+            /// Holds the target script, if any
+            /// </summary>
             public Script script;
 
+            /// <summary>
+            /// We get the actor, if we are actor its simple if script its his parent
+            /// </summary>
+            /// <returns></returns>
             public Actor GetActor()
             {
                 if (type == SerializedActorType.Actor)
@@ -201,6 +315,12 @@ namespace FlaxGameUI
                 else
                     return null;
             }
+            /// <summary>
+            /// Returns dynamic value if it should or the saved value if it shouldnt, note that there is a bug with serialization where int becomes long so we need to convert back
+            /// </summary>
+            /// <param name="dynamic">the dynamic vlaue to use in case we should</param>
+            /// <param name="targetType">the target type</param>
+            /// <returns></returns>
             public object GetSavedValueOrDynamic(object dynamic, Type targetType)
             {
                 if (IsDynamic)
@@ -212,12 +332,12 @@ namespace FlaxGameUI
                     if (targetType != null && SavedValue.GetType() == typeof(long) && targetType != typeof(long))
                         SavedValue = (int)(long)SavedValue;
                     return SavedValue;
-                }                    
+                }
             }
-
+            /// <inheritdoc/>
             public override bool Equals(object obj)
             {
-                if(obj is SerializedMethod otherSerMethod)
+                if (obj is SerializedMethod otherSerMethod)
                 {
                     bool valEq = SavedValue == otherSerMethod.SavedValue && ValueName == otherSerMethod.ValueName;
                     bool typesQr = type == otherSerMethod.type && valueType == otherSerMethod.valueType;
@@ -228,22 +348,31 @@ namespace FlaxGameUI
                 else
                     return false;
             }
+            /// <inheritdoc/>
             public override int GetHashCode()
             {
                 int hash = 17;
-                if(SavedValue != null)
+                if (SavedValue != null)
                     hash = hash * 23 + SavedValue.GetHashCode();
-                if(ValueName != null)
+                if (ValueName != null)
                     hash = hash * 23 + ValueName.GetHashCode();
-                if(Actor != null)
+                if (Actor != null)
                     hash = hash * 23 + Actor.GetHashCode();
-                if(script != null)
+                if (script != null)
                     hash = hash * 23 + script.GetHashCode();
                 hash = hash * 23 + IsDynamic.GetHashCode();
                 return hash;
             }
+            /// <summary>
+            /// The dynamic type that is allowed
+            /// </summary>
             [NoSerialize]
             public Type allowedDynamicType;
+
+            /// <summary>
+            /// Invokes the method or sets the value in case of Field or Property
+            /// </summary>
+            /// <param name="dynamicValue"></param>
             public void Invoke(object dynamicValue = null)
             {
                 object invoker = GetInvoker();
@@ -302,24 +431,46 @@ namespace FlaxGameUI
             }
         }
     }
-
+    /// <summary>
+    /// Custom list for SerMethods
+    /// </summary>
+    /// <typeparam name="T0">The target Dyanmic Type</typeparam>
     public class SerMethList<T0> : List<GameEventBase.SerializedMethod> { }
 
+    /// <summary>
+    /// Void GameEvent
+    /// </summary>
     public class GameEvent : GameEventBase
     {
         List<GameAction> actions = new List<GameAction>();
+        /// <summary>
+        /// Adds script listener for this action trigger
+        /// </summary>
+        /// <param name="action">The listener</param>
         public void AddListener(GameAction action)
         {
             actions.Add(action);
         }
+        /// <summary>
+        /// Clears all subscibed listeners(does not reflect the gui created ones)
+        /// </summary>
         public void ClearAllListeners()
         {
             actions.Clear();
         }
+        /// <summary>
+        /// void to use in SerMethList
+        /// </summary>
         public class GameEventVoid { }
 
+        /// <summary>
+        /// Gui listeners
+        /// </summary>
         public SerMethList<GameEventVoid> actorMethods = new SerMethList<GameEventVoid>();
 
+        /// <summary>
+        /// Invokes both GUI methods and Scripted methods
+        /// </summary>
         public void Invoke()
         {
             foreach (SerializedMethod actorMethod in actorMethods)
@@ -330,24 +481,40 @@ namespace FlaxGameUI
             {
                 action?.Invoke();
             }
-        }    
+        }
     }
-    
+
+    /// <summary>
+    /// Generic GameEvent
+    /// </summary>
+    /// <typeparam name="T0">The Generic type</typeparam>
     public class GameEvent<T0> : GameEventBase
     {
         List<GameAction<T0>> actions = new List<GameAction<T0>>();
-
+        /// <summary>
+        /// Adds script listener for this action trigger
+        /// </summary>
+        /// <param name="action">The listener</param>
         public void AddListener(GameAction<T0> action)
         {
             actions.Add(action);
         }
+        /// <summary>
+        /// Clears all subscibed listeners(does not reflect the gui created ones)
+        /// </summary>
         public void ClearAllListeners()
         {
             actions.Clear();
         }
 
+        /// <summary>
+        /// Gui listeners
+        /// </summary>
         public SerMethList<T0> actorMethods = new SerMethList<T0>();
 
+        /// <summary>
+        /// Invokes both GUI methods and Scripted methods
+        /// </summary>
         public void Invoke(T0 val)
         {
             foreach (SerializedMethod actorMethod in actorMethods)
