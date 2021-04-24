@@ -183,7 +183,7 @@ namespace FlaxGameUI
         {
             if (button == MouseButton.Left)
             {
-                UIInputSystem.GetInputSystemForRctrl(Root).NavigateTo(this);
+                UIInputSystem.GetInputSystemForRctrl(Root)?.NavigateTo(this);
                 OnSubmit();
                 return true;
             }
