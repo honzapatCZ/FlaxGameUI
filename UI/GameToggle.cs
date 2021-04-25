@@ -108,10 +108,10 @@ namespace FlaxGameUI
             {
                 if (isColorTint)
                 {
-                    SetColors(!Enabled ? DisabledColor : (toggled ? ToggledColor : NormalColor));
+                    SetColors(!Enabled ? DisabledColor : (toggled ? ToggledColor : (IsMouseOver || selected ? HoverColor : NormalColor)));
                 }
                 if (isBrushSwap)
-                    targetControlAsImage.Brush = !Enabled ? DisabledBrush : (toggled ? ToggledBrush : NormalBrush);
+                    targetControlAsImage.Brush = !Enabled ? DisabledBrush : (toggled ? ToggledBrush : (IsMouseOver || selected ? HoverBrush : NormalBrush));
             }
         }
 
@@ -121,34 +121,14 @@ namespace FlaxGameUI
         {
             base.OnSelect();
             selected = true;
-            Highlighted();
-        }
-        public void Highlighted()
-        {
-            if (TargetControl != null)
-            {
-                if (isColorTint)
-                {
-                    SetColors(HoverColor);
-                }
-                if (isBrushSwap)
-                    targetControlAsImage.Brush = HoverBrush;
-            }
+            Recalculate();
         }
         public override void OnDeSelect()
         {
             base.OnDeSelect();
             selected = false;
-            UnHighlighted();
-        }
-        public void UnHighlighted()
-        {
-            if (selected)
-            {
-
-                return;
-            }
-            Recalculate();
+            if(!IsMouseOver)
+                Recalculate();
         }
         /// <inheritdoc/>
         public override void OnSubmit()
@@ -156,6 +136,7 @@ namespace FlaxGameUI
             base.OnSubmit();
 
             toggled = !toggled;
+            Recalculate();
             OnClick?.Invoke();
             OnChange?.Invoke();
         }   
@@ -163,15 +144,14 @@ namespace FlaxGameUI
         /// <inheritdoc />
         public override void OnMouseLeave()
         {
-            UnHighlighted();
-
             base.OnMouseLeave();
+            if (!selected)
+                Recalculate();
         }
         public override void OnMouseEnter(Vector2 location)
         {
-            Highlighted();
-
             base.OnMouseEnter(location);
+            Recalculate();
         }
         /// <inheritdoc />
         public override bool OnMouseDown(Vector2 location, MouseButton button)
