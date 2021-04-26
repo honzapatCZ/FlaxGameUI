@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using FlaxEditor.Scripting;
 using FlaxEngine;
 
 namespace FlaxGameUI

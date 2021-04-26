@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if FLAX_EDITOR
+using System.Collections.Generic;
 using FlaxEngine;
 using FlaxEditor;
 using FlaxEditor.CustomEditors.Elements;
@@ -527,3 +528,4 @@ namespace FlaxGameUI
         }
     }
 }
+#endif
