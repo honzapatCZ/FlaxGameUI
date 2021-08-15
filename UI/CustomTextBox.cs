@@ -39,7 +39,7 @@ namespace FlaxGameUI
             }
             else
             {
-                base.Text = Text.Substring(0,Math.Min(MaxVisibleChars, Text.Length - 1));
+                base.Text = Text.Substring(0,Math.Max(Math.Min(MaxVisibleChars, Text.Length), 0));
             }            
         }
     }
