@@ -76,7 +76,7 @@ namespace FlaxGameUI
                 {
                     SetColors(!Enabled ? DisabledColor : (IsMouseOver || selected ? HoverColor : NormalColor));
                 }
-                if (isBrushSwap)
+                if (isBrushSwap && targetControlAsImage != null)
                     targetControlAsImage.Brush = !Enabled ? DisabledBrush : (IsMouseOver || selected ? HoverBrush : NormalBrush);
             }
         }
