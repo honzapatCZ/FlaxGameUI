@@ -90,6 +90,11 @@ namespace FlaxGameUI
                 NavigateTo(DefaultSelectedControl.Control as ISelectable);
         }
 
+        public ISelectable GetSelectedControl()
+        {
+            return currentlySelected;
+        }
+
         public void NavigateTo(ISelectable newSelectable)
         {
             currentlySelected?.OnDeSelect();
@@ -139,12 +144,12 @@ namespace FlaxGameUI
             {
                 if (potentialSelectable != this && potentialSelectable.EvaluateInAutoNav())
                 {
-                    Vector2 directionOfDifferences = (potentialSelectable.GetPosition() - from.GetPosition());
+                    Vector2 directionOfDifferences = (potentialSelectable.GetRectangle().Center - from.GetRectangle().Center);
                     directionOfDifferences.Normalize();
                     float likelinessOfDirectionCohersion = Vector2.Dot(directionOfInput, directionOfDifferences);
                     if (likelinessOfDirectionCohersion > 0f)
                     {
-                        float distance = Vector2.Distance(potentialSelectable.GetPosition(), from.GetPosition());
+                        float distance = Rectangle.Distance(potentialSelectable.GetRectangle(), from.GetRectangle());
                         if (distance < closetsDistance)
                         {
                             closetsDistance = distance;

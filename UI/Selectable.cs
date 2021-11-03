@@ -168,9 +168,9 @@ namespace FlaxGameUI
             return Root;
         }
 
-        public Vector2 GetPosition()
+        public Rectangle GetRectangle()
         {
-            return PointToScreen(Vector2.Zero);
+            return new Rectangle(ScreenPos, Size);
         }
     }
 }

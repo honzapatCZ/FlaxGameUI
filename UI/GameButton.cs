@@ -145,8 +145,10 @@ namespace FlaxGameUI
         /// <inheritdoc />
         public override bool OnMouseDown(Vector2 location, MouseButton button)
         {
+            
             if (button == MouseButton.Left)
             {
+                Debug.Log("Click");
                 UIInputSystem.GetInputSystemForRctrl(Root)?.NavigateTo(this);
                 OnSubmit();
                 return true;

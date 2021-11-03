@@ -38,6 +38,6 @@ namespace FlaxGameUI
         /// Gets the position in global space
         /// </summary>
         /// <returns>Gets the position in global space</returns>
-        Vector2 GetPosition();
+        Rectangle GetRectangle();
     }
 }
